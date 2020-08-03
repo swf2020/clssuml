@@ -1,0 +1,8 @@
+@startuml
+
+class HashSet<? extends String>{
++boolean add (Object o)
++boolean remove(Object o)
+}
+
+@enduml

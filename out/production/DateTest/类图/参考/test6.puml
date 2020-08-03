@@ -1,0 +1,28 @@
+@startuml
+class China {
+  {static} int id
+  int rivers
+  long person
+  .. /' 省略号 '/
+  String city
+  double lat
+  ==/' 双分割线 '/
+  {abstract}long getCities()
+  __/' 单分割线 '/
+  long getPerson()
+  double getLat()
+}
+
+class Beijing {
+  .. 注解说明 ..
+  + setRiver()
+  + setName()
+  __ 注解说明 __
+  + setPerson()
+  -- 注解说明 --
+  String password
+}
+ China <-- Beijing
+
+
+@enduml

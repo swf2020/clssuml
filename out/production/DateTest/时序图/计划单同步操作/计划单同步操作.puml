@@ -1,0 +1,94 @@
+@startuml
+hide footbox
+title 小二端补货运营平台 计划单同步操作流程
+actor 运营小二 as X
+
+alt 小二选择操作
+    X -> 前端:提交计划单
+    activate 前端
+    前端 -> 后端:封装用户身份与提交命令
+    note over 后端: resumePlanOrderFlow()
+    activate 后端
+    后端 -> 流程实例SDK服务:封装用户身份与提交命令
+    note over 流程实例SDK服务: resumeTicketFlowInstance
+    activate 流程实例SDK服务
+    流程实例SDK服务 --> 流程实例SDK服务: 执行提交操作 \n改变计划单状态
+    流程实例SDK服务 --> 后端: 获得执行结果
+    deactivate 流程实例SDK服务
+    后端 --> 前端: 返回计划单最新状态数据
+    deactivate 后端
+    前端 --> X: 刷新页面，实时展示计划单
+    deactivate 前端
+else
+    database 单据持久化中心 as B #green
+    X -> 前端:下发计划单
+    activate 前端
+    前端 -> 后端:封装用户身份与提交命令
+    note over 后端: notifyPlanOrderSending()
+    activate 后端
+    后端 --> 后端:封装用户身份与提交命令
+    后端 -> B:执行数据库访问类
+    note over B: update()
+    activate B
+    B --> B: 执行单据状\n态更新操作
+    B --> 后端: 刷新页面，实时展示计划单
+    deactivate B
+    后端 --> 前端: 返回计划单最新状态数据
+    deactivate 后端
+    前端 --> X: 刷新页面，实时展示计划单
+    deactivate 前端
+else
+    X -> 前端:关闭计划单
+    activate 前端
+    前端 -> 后端:封装用户身份与关单命令
+    note over 后端: resumePlanOrderFlow()
+    activate 后端
+    后端 -> 流程实例SDK服务:封装用户身份与关单命令
+    note over 流程实例SDK服务: resumeTicketFlowInstance
+    activate 流程实例SDK服务
+    流程实例SDK服务 --> 流程实例SDK服务: 执行关单操\n作改变计划单状态
+    流程实例SDK服务 --> 后端: 获得执行结果
+    deactivate 流程实例SDK服务
+    后端 --> 前端: 返回计划单最新状态数据
+    deactivate 后端
+    前端 --> X: 刷新页面，实时展示计划单
+    deactivate 前端
+else
+    X -> 前端:修改计划单
+    activate 前端
+    前端 -> 后端:封装用户身份与修改命令
+    note over 后端: resumePlanOrderFlow()
+    activate 后端
+    后端 -> 流程实例SDK服务:封装用户身份与修改命令
+    note over 流程实例SDK服务: resumeTicketFlowInstance
+    activate 流程实例SDK服务
+    流程实例SDK服务 --> 流程实例SDK服务: 执行修改计划单操作\n改变计划单状态
+    流程实例SDK服务 --> 后端: 获得执行结果
+    deactivate 流程实例SDK服务
+    后端 --> 前端: 返回计划单最新状态数据
+    deactivate 后端
+    前端 --> X: 刷新页面，实时展示计划单
+    deactivate 前端
+else
+    X -> 前端:审核计划单
+    activate 前端
+    前端 -> 后端:封装用户身份与审核命令
+    note over 后端: resumePlanOrderFlow()
+    activate 后端
+    后端 -> 流程实例SDK服务:封装用户身份与审核命令
+    note over 流程实例SDK服务: resumeTicketFlowInstance
+    activate 流程实例SDK服务
+    流程实例SDK服务 --> 流程实例SDK服务: 执行审核操作 \n改变计划单状态
+    流程实例SDK服务 --> 后端: 获得执行结果
+    deactivate 流程实例SDK服务
+    后端 --> 前端: 返回计划单最新状态数据
+    deactivate 后端
+    前端 --> X: 刷新页面，实时展示计划单
+    deactivate 前端
+else 前端展示结果
+    deactivate 前端
+end
+
+@enduml
+
+

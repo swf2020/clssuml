@@ -1,0 +1,78 @@
+@startuml
+hide footbox
+title 计划单自动审核时序图
+nbf_flow_自动审核 -> 计划单业务操作类: 用户身份, 任务类型, 计划单查询条件
+note over nbf_flow_自动审核: process()
+activate nbf_flow_自动审核
+
+note over 计划单业务操作类: 决策是否需要自动审核
+activate 计划单业务操作类
+计划单业务操作类 -> 计划单数据访问类: 根据业务类型与计划单号查询数据库
+
+note over 计划单数据访问类: find()
+activate 计划单数据访问类
+计划单数据访问类 --> 计划单业务操作类: 获得PlanOrderEntity(计划单实体类)
+deactivate 计划单数据访问类
+
+计划单业务操作类 -> 配置中心: NeedAutoApproveChecker
+note over 配置中心: handler()
+activate 配置中心
+
+alt 配置中心参数有效
+    配置中心 --> 计划单业务操作类 : 执行下一步审核
+else 配置中心参数无效
+    配置中心 --> nbf_flow_自动审核: 自动审核终止
+end
+
+deactivate 配置中心
+
+计划单业务操作类 -> 规则中心: NeedAutoApproveDecideFromRuleHandler
+note over 规则中心: handler()
+activate 规则中心
+alt 规则中心参数有效
+    规则中心 --> 计划单业务操作类 : 执行下一步审核
+else 规则中心参数无效
+    规则中心 --> nbf_flow_自动审核: 自动审核终止
+end
+
+deactivate 规则中心
+
+计划单业务操作类 --> 参数系统: NeedAutoApproveDecideFromParamHandler
+note over 参数系统: handler()
+activate 参数系统
+alt 参数系统参数有效
+    参数系统 --> 计划单业务操作类 : 执行下一步审核
+    计划单业务操作类 --> nbf_flow_自动审核: 执行自动审核决策
+else 参数系统参数无效
+    参数系统 --> nbf_flow_自动审核: 自动审核终止
+end
+
+deactivate 参数系统
+
+deactivate 计划单业务操作类
+
+== 分隔符 ==
+nbf_flow_自动审核 -> 计划单业务操作类: 业务类型, PlanOrderDecideAutoApprovedCmd
+note over 计划单业务操作类: 取自动审核通过的规则列表
+activate 计划单业务操作类
+
+计划单业务操作类 -> 计划单数据访问类: 根据业务类型与计划单号查询数据库
+note over 计划单数据访问类: find()
+activate 计划单数据访问类
+计划单数据访问类 --> 计划单业务操作类: 获得PlanOrderEntity(计划单实体)
+deactivate 计划单数据访问类
+
+计划单业务操作类 -> 规则与参数校验: ApproveRuleFetcher,PeakInvRuleDecideHandler,QuotaRuleDecideHandler,WeightRuleDecideHandler,AutoApproveDecideFromRuleHandler
+activate 规则与参数校验
+alt 规则与参数校验有效
+    规则与参数校验 --> 计划单业务操作类 : 执行下一步审核
+    计划单业务操作类 --> nbf_flow_自动审核: 执行自动审核决策
+else 规则与参数校验无效
+    规则与参数校验 --> nbf_flow_自动审核: 自动审核失败
+    deactivate 规则与参数校验
+end
+
+deactivate 计划单业务操作类
+
+deactivate nbf_flow_自动审核
+@enduml

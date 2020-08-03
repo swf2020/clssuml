@@ -1,0 +1,64 @@
+@startuml
+hide footbox
+title 小二端补货运营平台-计划单异步操作流程
+actor 运营小二 as X
+
+alt
+database 任务持久化中心 as R #green
+X -> 前端:批量提交计划单
+activate 前端
+前端 -> 任务观察中心:用户身份，批量提交命令，任务类型
+note over 任务观察中心: createTaskWithDelayedDetail()
+activate 任务观察中心
+任务观察中心 --> 任务观察中心: 创建主任务实体
+任务观察中心 -> R: 持久化主任务实体
+note over R: save()
+activate R
+R --> 任务观察中心:
+deactivate R
+任务观察中心 -> 任务分发与执行中心: 主任务实体
+activate 任务分发与执行中心
+任务观察中心 --> 监听器: 注册监听器
+activate 监听器
+任务分发与执行中心 --> 任务分发与执行中心: 创建子任务实体,\nschedulerX做\n任务分发与执行
+任务分发与执行中心 -> R: 持久化子任务实体
+note over R: save()
+activate R
+R --> 任务分发与执行中心:
+deactivate R
+
+loop 轮询
+前端 --> 任务观察中心: 查询任务执行进度
+note over 任务分发与执行中心: distribute()
+
+任务分发与执行中心 --> 监听器:返回任务实时执行进度
+监听器 --> 任务观察中心: 返回任务实时执行进度
+任务分发与执行中心 --> 任务分发与执行中心: 任务执行
+任务分发与执行中心 --> 监听器: 返回任务实时执行进度
+deactivate 任务分发与执行中心
+监听器 --> 任务观察中心: 返回任务实时执行进度
+deactivate 监听器
+
+任务观察中心 --> 前端: 返回任务执行进度数据
+deactivate 任务观察中心
+前端 --> X: 实时刷新页面
+deactivate 前端
+end
+else
+end
+
+box "后端"
+    participant 任务观察中心
+    participant 监听器
+    participant 任务分发与执行中心
+    database 任务持久化中心 as R #green
+end box
+
+@enduml
+
+'BATCH_CLOSE_PLAN_ORDER
+'BATCH_APPROVE_PLAN_ORDER
+'BATCH_ISSUE_PLAN_ORDER
+'BATCH_SUBMIT_PLAN_ORDER
+'BATCH_REJECT_PLAN_ORDER
+'五种状态转换

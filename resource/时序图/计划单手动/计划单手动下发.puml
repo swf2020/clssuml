@@ -1,0 +1,38 @@
+@startuml
+title 计划单手动下发时序图
+actor 运营小二 as X
+
+X -> 前端应用: 点击手动批量下发计划单
+前端应用 -> ppce: 根据containerCode获取页面单据信息
+note over 前端应用: doAsync()
+activate 前端应用
+note over ppce: queryWebpageContainer()
+activate ppce
+ppce --> 前端应用: 返回页面单据信息
+deactivate ppce
+
+前端应用 -> 动态查询中心: 传递前端信息
+note over 动态查询中心: buildDynamicPageQuery()
+activate 动态查询中心
+动态查询中心 --> 动态查询中心: 构建动态查询语句
+动态查询中心 --> 前端应用: 返回动态查询语句
+deactivate 动态查询中心
+
+前端应用 -> 任务创建中心: 传递任务类型，查询条件，用户身份
+note over 任务创建中心: createTaskWithDelayedDetail()
+activate 任务创建中心
+任务创建中心 --> 任务创建中心: 创建任务
+任务创建中心 -> 任务分发与执行中心: 主任务，任务类型，用户信息
+'任务分发与执行中心 -> 任务分发与执行中心:
+activate 任务分发与执行中心
+任务分发与执行中心 --> 任务分发与执行中心: 计划单自动下发
+任务分发与执行中心 --> 任务创建中心: return
+任务创建中心 --> 前端应用: 返回任务执行结果
+前端应用 --> X: 前端展示最新结果
+
+deactivate 任务分发与执行中心
+deactivate 任务创建中心
+
+deactivate 前端应用
+
+@enduml

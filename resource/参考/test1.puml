@@ -1,0 +1,9 @@
+@startuml
+hide footbox
+actor actor #red
+boundary boundary #yellow
+control control #blue
+entity entity #green
+database database #EE4000
+"学术袁" -> Blog :方形
+@enduml

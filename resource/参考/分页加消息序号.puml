@@ -1,0 +1,24 @@
+@startuml
+autonumber
+  title page one
+    "产品经理" -> "程序员" : 你应该把这个图标缩小1px
+    "程序员" -> "产品经理" : 先问问我手中的大刀
+
+  newpage page two
+    autonumber 20
+    "产品经理" -> "程序员" : 下班回家吧
+    "产品经理" <- "程序员" : 我是有梦想的人
+
+    autonumber 38 10 "<font color=red>Message 0  "
+    "产品经理" -> "程序员" : 说笑呢
+    "产品经理" <- "程序员" : 我是认真的
+
+  newpage  title for the\nlast page
+    autonumber "<b>[100]"
+    "程序员" <- "产品经理" : 要不再改下UI
+    "程序员" -> "产品经理" : 一起回
+
+    autonumber 18 "<b>(<u>##</u>)"
+    "程序员" <- "产品经理" : 你留下来加会班
+    "程序员" -> "产品经理" : 好的，那就不请你吃火锅了
+@enduml

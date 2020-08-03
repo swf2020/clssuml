@@ -1,0 +1,16 @@
+@startuml
+  hide footbox
+  actor "学术袁" #red
+  "学术袁" -[#912CEE]> Tencent : message
+  Tencent--> Alibaba : message
+  Mi<<- Alibaba : message
+  Jd<<-- Mi : message
+  Jd-\ VIP : message
+  Jd--\ VIP : message
+  Jd--\\ VIP : message
+  Tencent<--> VIP : message
+  Tencent<-> VIP : message
+  Tencent-[#7FFF00]>o Jd : message
+  Tencent-->o User : message
+  "媳妇儿"--\o VIP : message
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+title 计划单下发拆合单
+
+TaskEntity -> distribute: 解析taskEntity获取请求参数数据
+activate TaskEntity
+distribute -> distinctDimensionValues: 获取维度详情数据
+activate distribute
+activate distinctDimensionValues
+distinctDimensionValues -> distinctDimensionValues: 从配置中获取维度信息。\nC2M行业为，供应商+目的仓+一级类目+\n二级类目+货品属性（新品）
+distinctDimensionValues -> distinctDimensionValues: 从DB中获取维度指标数据值
+distinctDimensionValues -> distinctDimensionValues: 构建合单维度信息
+distinctDimensionValues -> buildTaskDetailStartMeta: 做合单操作
+activate buildTaskDetailStartMeta
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: a. 基于维度信息，供应商+目的仓+一级类目+二级类目+货品属性 \n从配置中心取拆单规则。(商家仓走原有逻辑)
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: b. 合单规则+拆单规则构建 单据查询条件。先按照互斥规则合单
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: ⅰ. 货品种类数量限制，补货数量限制，同时只有一个可以满足条件。\n优先处理。(大于补货数量限制的单据，独自占一单)
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: ⅱ. 处理按类目合单规则。
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: ⅲ. 按供应商、目的仓，数量限制(50)三个条件合单。(商家仓直接跳到这一步)
+buildTaskDetailStartMeta -> buildTaskDetailStartMeta: ⅱ. 处理按类目合单规则。
+buildTaskDetailStartMeta --> distinctDimensionValues: 构建TaskDetail的执行参数返回
+deactivate buildTaskDetailStartMeta
+
+distinctDimensionValues --> distribute:
+deactivate distinctDimensionValues
+
+distribute --> TaskEntity:
+
+deactivate distribute
+deactivate TaskEntity
+
+
+@enduml
+
+
+

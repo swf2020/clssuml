@@ -1,0 +1,13 @@
+@startuml
+Class China {
+    {static}+int id /' 表示 静态属性（下划线） '/
+    -String area
+    #int rivers
+    +long person
+
+    ~String getArea()
+    {abstract}long getPerson() /' 表示 抽象方法（斜体） '/
+}
+
+@enduml
+

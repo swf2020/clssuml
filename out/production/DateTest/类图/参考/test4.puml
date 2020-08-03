@@ -1,0 +1,13 @@
+@startuml
+Class China {
+    -String area /'-表示权限private'/
+    #int rivers  /'#表示权限protected'/
+    +long person /'+表示权限public'/
+    class Beijing{}
+    interface aa{}
+
+    ~String getArea() /'~表示权限package private'/
+    long getPerson()
+}
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+hide footbox
+title 小二端补货运营平台-计划单定时下发流程
+'actor 页面手动下发 as X
+
+
+'X -> 任务观察中心: 用户身份，批量下发命令，任务类型
+
+loop 十分钟执行一次定时任务
+database 任务持久化中心 as R #green
+
+activate Schedulex定时任务
+Schedulex定时任务 -> 任务观察中心: 用户身份，批量下发命令，任务类型
+note over 任务观察中心: createTaskWithDelayedDetail()
+activate 任务观察中心
+任务观察中心 --> 任务观察中心: 创建主任务实体
+任务观察中心 -> R: 持久化主任务实体
+note over R: save()
+activate R
+R --> 任务观察中心:
+deactivate R
+任务观察中心 -> 任务分发与执行中心: 主任务实体
+activate 任务分发与执行中心
+任务观察中心 --> 监听器: 注册监听器
+activate 监听器
+任务分发与执行中心 --> 任务分发与执行中心: 创建子任务实体,\nschedulerX做\n任务分发与执行
+任务分发与执行中心 -> R: 持久化子任务实体
+note over R: save()
+activate R
+R --> 任务分发与执行中心:
+deactivate R
+
+loop 轮询
+Schedulex定时任务 --> 任务观察中心: 查询任务执行进度
+note over 任务分发与执行中心: distribute()
+
+任务分发与执行中心 --> 监听器:返回任务实时执行进度
+监听器 --> 任务观察中心: 返回任务实时执行进度
+任务分发与执行中心 --> 任务分发与执行中心: 任务执行
+任务分发与执行中心 --> 监听器: 返回任务实时执行进度
+deactivate 任务分发与执行中心
+监听器 --> 任务观察中心: 返回任务实时执行进度
+deactivate 监听器
+
+任务观察中心 --> Schedulex定时任务: 返回任务执行进度数据
+deactivate 任务观察中心
+deactivate Schedulex定时任务
+end
+else
+end
+
+box "后端"
+    participant 任务观察中心
+    participant 监听器
+    participant 任务分发与执行中心
+    database 任务持久化中心 as R #green
+end box
+
+@enduml
+
+'BATCH_CLOSE_PLAN_ORDER
+'BATCH_APPROVE_PLAN_ORDER
+'BATCH_ISSUE_PLAN_ORDER
+'BATCH_SUBMIT_PLAN_ORDER
+'BATCH_REJECT_PLAN_ORDER
+'五种状态转换

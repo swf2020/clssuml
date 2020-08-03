@@ -1,0 +1,46 @@
+@startuml
+title 异步导入
+actor 运营小二 as X
+
+==导入任务创建请求==
+X -> 前端: 导入补货计划单
+activate 前端
+前端 -> adminoperation: 导入补货计划单
+activate adminoperation
+adminoperation --> adminoperation:上传文件到OSS，获取osskey
+adminoperation -> ppce:查询导入配置
+activate ppce
+ppce --> adminoperation:返回导入配置
+deactivate ppce
+adminoperation --> adminoperation:封装导入配置
+adminoperation -> collaboration:提交导入请求
+activate collaboration
+collaboration --> collaboration:创建导入任务
+adminoperation <-- collaboration:返回任务id
+deactivate collaboration
+前端 <- adminoperation:返回任务id
+deactivate adminoperation
+
+==异步导入执行==
+loop 轮询
+前端 -> adminoperation: 根据任务id查询导入执行结果
+activate adminoperation
+adminoperation -> collaboration: 根据任务id查询导入执行结果
+activate collaboration
+collaboration --> adminoperation: 返回导入执行进度
+deactivate collaboration
+adminoperation --> 前端: 返回导入执行进度
+deactivate adminoperation
+前端 --> X: 实时刷新导入执行进度
+deactivate 前端
+end
+par 多线程
+collaboration --> collaboration: 执行
+collaboration --> collaboration: 执行
+collaboration --> collaboration: 执行
+
+
+end
+
+@enduml
+

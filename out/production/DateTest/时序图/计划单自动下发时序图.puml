@@ -1,0 +1,106 @@
+@startuml
+hide footbox
+title 计划单自动下发时序图
+Schedule -> PlanOrderService:Identity,PlanOrderIssueCmd
+note over Schedule: process()
+activate Schedule
+note over PlanOrderService: batchIssuePlanOrder()
+activate PlanOrderService
+PlanOrderService -> TaskService:Identity,PlanOrderIssueCmd,JSONObject,startMeta
+
+note over TaskService: createTaskWithDelayedDetail()
+activate TaskService
+TaskService -> TaskDomainService: Identity,PlanOrderIssueCmd,JSONObject,startMeta
+
+note over TaskDomainService: createTaskWithDelayedDetail()
+activate TaskDomainService
+
+TaskDomainService --> TaskDistributeListener: applicationEventPublisher
+note over TaskDistributeListener: onApplicationEvent()
+activate TaskDistributeListener
+TaskDistributeListener -> TaskDistributor: taskEntity
+
+note over TaskDistributor: distribute()
+activate TaskDistributor
+TaskDistributor --> TaskDistributor:
+note over TaskDistributor: distinctDimensionValues()
+TaskDistributor --> TaskDistributor:
+note over TaskDistributor: buildTaskDetailStartMeta()
+TaskDistributor --> TaskDistributor:
+
+TaskDistributor --> TaskDomainService: taskEntity,detailStartMetaList
+
+note over TaskDomainService: createTaskDetailByTask()
+activate TaskDomainService
+
+TaskDomainService -> TaskEntityRepository: taskEntity
+note over TaskEntityRepository: update()
+activate TaskEntityRepository
+TaskEntityRepository --> TaskEntityRepository:
+TaskEntityRepository --> TaskDomainService: return
+deactivate TaskEntityRepository
+
+TaskDomainService -> TaskDetailEntityRepository: taskDetailEntity
+note over TaskDetailEntityRepository: save()
+activate TaskDetailEntityRepository
+TaskDetailEntityRepository --> TaskDetailEntityRepository:
+TaskDetailEntityRepository --> TaskDomainService: return
+deactivate TaskDetailEntityRepository
+
+deactivate TaskDomainService
+
+
+TaskDomainService -> TaskDomainService: taskEntity
+note over TaskDomainService: taskDetailCreateFinished()
+activate TaskDomainService
+TaskDomainService -> TaskEntityRepository: taskEntity
+note over TaskEntityRepository: update()
+activate TaskEntityRepository
+TaskEntityRepository --> TaskEntityRepository:
+TaskEntityRepository --> TaskDomainService: return
+deactivate TaskEntityRepository
+
+TaskDomainService -> TaskDetailMapListener: new TaskWithDetailCreatedEvent(taskEntity)
+note over TaskDetailMapListener: onApplicationEvent()
+activate TaskDetailMapListener
+TaskDetailMapListener -> TaskDetailEntityRepository: Identity, TaskNo
+
+note over TaskDetailEntityRepository: count()
+activate TaskDetailEntityRepository
+TaskDetailEntityRepository --> TaskDetailEntityRepository:
+TaskDetailEntityRepository --> TaskDetailMapListener: return Long
+deactivate TaskDetailEntityRepository
+
+TaskDetailMapListener -> TaskDetailMapReduceService: taskEntity, concurrency
+note over TaskDetailMapReduceService: map()
+activate TaskDetailMapReduceService
+TaskDetailMapReduceService --> TaskDetailMapListener:
+deactivate TaskDetailMapReduceService
+
+TaskDetailMapListener -> TaskEntityRepository: taskEntity
+note over TaskEntityRepository:update()
+activate TaskEntityRepository
+TaskEntityRepository --> TaskEntityRepository:
+TaskEntityRepository --> TaskDetailMapListener
+deactivate TaskEntityRepository
+
+TaskDetailMapListener --> TaskDomainService:
+deactivate TaskDetailMapListener
+
+deactivate TaskDistributor
+deactivate TaskDistributeListener
+
+deactivate TaskDomainService
+
+TaskDomainService --> TaskService: TaskEntity
+deactivate TaskDomainService
+
+TaskService --> PlanOrderService: Result<String>
+deactivate TaskService
+
+PlanOrderService --> Schedule: Result<String>
+deactivate PlanOrderService
+
+deactivate Schedule
+
+@enduml

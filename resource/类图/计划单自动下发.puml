@@ -1,0 +1,54 @@
+@startuml
+
+class PlanAsyncWebAPI {
+	 Map<String, Object> doAsync(string);
+}
+
+interface TaskService {
+    Result<String> createTaskWithDelayedDetail(Identity, TaskType, JSONObject, CollaborationUser);
+}
+
+class TaskServiceImpl {
+    Result<String> createTaskWithDelayedDetail(Identity, TaskType, JSONObject, CollaborationUser);
+}
+
+class TaskDomainService {
+    TaskEntity createTaskWithDelayedDetail(Identity, TaskType, JSONObject, CollaborationUser);
+    TaskEntity taskDetailCreateFinished(TaskEntity taskEntity);
+    TaskEntity createTaskDetailByTask(TaskEntity , List<JSONObject>);
+}
+
+class TaskDistributeListener {
+	void onApplicationEvent(TaskWithDelayedDetailCreatedEvent event);
+}
+
+interface TaskDistributor {
+    void distribute(TaskEntity taskEntity);
+}
+
+class BatchOrderConvertDistributor {
+    void distribute(TaskEntity);
+    List<OrderConvertCondition> distinctDimensionValues(Identity, OrderConvertType, Predicate);
+    DynamicQuery buildDistinctDynamicQuery(String,Identity,Predicate, List<String> fieldNames);
+    List<JSONObject> buildTaskDetailStartMeta(Identity, JSONObject, OrderConvertType, Predicate, List<OrderConvertCondition>);
+}
+
+class TaskEntityRepository{
+    int update(TaskEntity taskEntity);
+}
+
+class TaskDetailEntityRepository {
+    TaskDetailEntity save(TaskDetailEntity taskDetailEntity);
+}
+
+PlanAsyncWebAPI o--up TaskServiceImpl
+TaskService o--right TaskServiceImpl
+TaskServiceImpl o--right TaskDomainService
+TaskDomainService o--down TaskDistributeListener
+TaskDistributor o--right BatchOrderConvertDistributor
+BatchOrderConvertDistributor --right TaskDistributeListener
+BatchOrderConvertDistributor --up TaskDomainService
+TaskDomainService o--up TaskEntityRepository
+TaskDomainService o--up TaskDetailEntityRepository
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+interface Set<<接口>>{
+boolean add (Object o)
+boolean remove(Object o)
+}
+
+package "com.ztman.cn" #green{
+class HashSet<? extends String>{
++boolean add (Object o)
++boolean remove(Object o)
+}
+interface IntSet{
+boolean add (int i)
+boolean remove(int i)
+}
+class IntHashSet{
++boolean add (int i)
++boolean remove(int i)
+}
+}
+
+Set <|.. HashSet
+HashSet <|-- IntHashSet
+IntSet <|.. IntHashSet
+
+class TreeSet{
++boolean add (Object o)
++boolean remove(Object o)
+}
+class IntTreeSet{
++boolean add (int i)
++boolean remove(int i)
+}
+
+IntSet <|.. IntTreeSet
+TreeSet <|-- IntTreeSet
+Set <|.. TreeSet
+
+@enduml

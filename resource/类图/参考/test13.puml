@@ -1,0 +1,43 @@
+@startuml
+skinparam packageStyle rect/' 加入这行代码，样式纯矩形'/
+interface Set<<接口>>{
+boolean add (Object o)
+boolean remove(Object o)
+}
+
+namespace com.ztman.org #green{
+class HashSet<? extends String>{
++boolean add (Object o)
++boolean remove(Object o)
+}
+interface IntSet{
+boolean add (int i)
+boolean remove(int i)
+}
+class IntHashSet{
++boolean add (int i)
++boolean remove(int i)
+}
+
+.Set <|.. HashSet
+HashSet <|-- IntHashSet
+IntSet <|.. IntHashSet
+}
+
+
+namespace com.ztman.org.cn #orange{
+class TreeSet {
++boolean add (Object o)
++boolean remove(Object o)
+}
+class IntTreeSet{
++boolean add (int i)
++boolean remove(int i)
+}
+
+com.ztman.org.IntSet <|.. IntTreeSet
+TreeSet <|-- IntTreeSet
+.Set <|.. TreeSet
+}
+
+@enduml
