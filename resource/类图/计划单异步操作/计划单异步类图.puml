@@ -1,0 +1,56 @@
+@startuml
+title  计划单异步执行类图
+'skinparam packageStyle rect /' 加入这行代码，样式纯矩形'/
+skinparam backgroundColor #EEEBAD
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+
+package 前端应用 #DodgerBlue {
+    class PlanAsyncWebAPI {
+        +Map doAsync(String str)
+    }
+}
+
+package 配置中心 #DodgerBlue {
+    class WebpageContainerService {
+        +queryWebpageContainer(String str)
+    }
+}
+
+package 后端应用.api.dto #DodgerBlue {
+    class DynamicQuery {
+        +String resourceCode
+        +Predicate predicate
+    }
+    class CollaborationUser {
+        +Long userId
+        +String userName
+    }
+}
+
+package 后端应用 #DodgerBlue {
+    class TaskDomainService  {
+       +TaskEntity createTaskWithDelayedDetail(Identity, TaskType, startMeta, CollaborationUser)
+    }
+
+    class TaskService {
+        +Result<String> createTaskWithDelayedDetail(Identity, TaskType, startMeta, CollaborationUser)
+    }
+
+    class TaskEntityRepository {
+        +TaskEntity save(TaskEntity);
+        +int update(TaskEntity);
+        +TaskEntity findByTaskNo(Identity, String taskNo);
+    }
+}
+
+
+DynamicQuery --> TaskService
+CollaborationUser --> TaskService
+PlanAsyncWebAPI --o WebpageContainerService
+TaskService -right-o PlanAsyncWebAPI
+TaskService --> TaskDomainService
+TaskDomainService --> TaskEntityRepository
+
+@enduml

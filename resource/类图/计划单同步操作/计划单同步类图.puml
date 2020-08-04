@@ -1,0 +1,52 @@
+@startuml
+title  计划单同步执行类图
+'skinparam packageStyle rect /' 加入这行代码，样式纯矩形'/
+skinparam backgroundColor #EEEBAD
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+
+package 前端应用 #DodgerBlue {
+    class PlanSyncWebAPI {
+        +Map doSync(String str)
+    }
+}
+
+package 配置中心 #DodgerBlue {
+    class WebpageContainerService {
+        +queryWebpageContainer(String str)
+    }
+}
+
+package 后端应用.flow.sdk #DodgerBlue {
+    class FlowInstanceSDKService{
+        +SingleResultDO<String> createTicketFlowInstance()
+    }
+    class FlowInstanceSDKDTO{
+        +String ticketNo
+        +String eventName
+    }
+}
+
+package 后端应用 #DodgerBlue {
+    class PlanOrderService  {
+        +Result<Boolean> resumePlanOrderFlow()
+        +Result<Void> notifyPlanOrderSending()
+        +Result<String> createPlanOrderImportTask()
+    }
+}
+
+package 后端应用.dto.comand #DodgerBlue{
+    class PlanOrderCmd{
+        +String orderCode
+    }
+}
+
+PlanSyncWebAPI -right-o WebpageContainerService
+PlanSyncWebAPI -left-> PlanOrderCmd
+PlanOrderService -down-o PlanSyncWebAPI
+PlanOrderService -down-> FlowInstanceSDKService
+FlowInstanceSDKDTO o-up- FlowInstanceSDKService
+
+
+@enduml
