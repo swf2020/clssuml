@@ -6,7 +6,4 @@ ClassA <|-- ClassB:泛化
 ClassA <|.. ClassB:实现
 
 
-
-
-
 @enduml

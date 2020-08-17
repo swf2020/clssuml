@@ -1,0 +1,54 @@
+@startuml
+title  计划单自动审核类图
+'skinparam packageStyle rect /' 加入这行代码，样式纯矩形'/
+'skinparam backgroundColor #EEEBAD
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+
+package 自动审核 #DodgerBlue {
+    class PlanOrderService {
+        +Result<Boolean> decideNeedAutoApprovePlanOrder(Identity, PlanOrderDecideNeedAutoApproveCmd)
+        +Result<Boolean> decideAutoApprovedPlanOrder(Identity, PlanOrderDecideAutoApprovedCmd)
+    }
+
+    class PlanOrderServiceImpl {
+        +Result<Boolean> decideNeedAutoApprovePlanOrder(Identity, PlanOrderDecideNeedAutoApproveCmd)
+        +Result<Boolean> decideAutoApprovedPlanOrder(Identity, PlanOrderDecideAutoApprovedCmd)
+        +Result<Void> approvePlanOrder(Identity, PlanOrderApproveCmd)
+    }
+
+    class PlanOrderRepository {
+        +PlanOrderEntity find(TenantId, BizType)
+    }
+
+}
+
+package 是否需要审核校验 #DodgerBlue {
+    class NeedAutoApproveChecker {}
+    class NeedAutoApproveDecideFromRuleHandler{}
+    class NeedAutoApproveDecideFromParamHandler{}
+
+}
+
+package 决策审核通过校验 #DodgerBlue {
+    class ApproveRuleFetcher {}
+    class PeakInvRuleDecideHandler {}
+    class QuotaRuleDecideHandler {}
+    class WeightRuleDecideHandler {}
+}
+
+
+PlanOrderServiceImpl <..down PlanOrderService: 实现
+PlanOrderRepository <--down PlanOrderServiceImpl:数据访问
+NeedAutoApproveChecker <--left PlanOrderServiceImpl:校验是否需要自动审核
+NeedAutoApproveDecideFromRuleHandler <--down NeedAutoApproveChecker
+NeedAutoApproveDecideFromParamHandler <--down NeedAutoApproveDecideFromRuleHandler
+
+ApproveRuleFetcher <--left PlanOrderServiceImpl: 校验决策审核通过
+PeakInvRuleDecideHandler <--down ApproveRuleFetcher
+QuotaRuleDecideHandler <--down PeakInvRuleDecideHandler
+WeightRuleDecideHandler <--down QuotaRuleDecideHandler
+
+
+@enduml

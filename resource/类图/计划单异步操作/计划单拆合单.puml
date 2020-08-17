@@ -1,0 +1,66 @@
+@startuml
+title  计划单下发拆合单类图
+'skinparam packageStyle rect /' 加入这行代码，样式纯矩形'/
+'skinparam backgroundColor #EEEBAD
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+
+package 任务创建与分发 #DodgerBlue {
+    class TaskDomainService  {
+        +TaskEntity createTaskDetailByTask(TaskEntity taskEntity, List<JSONObject> detailStartMetaList)
+        +TaskEntity taskDetailCreateFinished(TaskEntity taskEntity)
+
+    }
+
+    class TaskService {
+        +Result<String> createTaskWithDelayedDetail(Identity, TaskType, startMeta, CollaborationUser)
+    }
+
+    class TaskEntityRepository {
+        +TaskEntity save(TaskEntity)
+        +int update(TaskEntity)
+        +TaskEntity findByTaskNo(Identity, String taskNo)
+    }
+
+    class BatchOrderConvertDistributor {
+       +void distribute(TaskEntity)
+       +List<OrderConvertCondition> distinctDimensionValues(Identity, OrderConvertType, Predicate)
+       +List<JSONObject> buildTaskDetailStartMeta(Identity, JSONObject, OrderConvertType, Predicate, List<OrderConvertCondition>)
+
+    }
+}
+
+package 计划单拆合单据 #DodgerBlue {
+    class PlanOrderIssueCombineOrderService {
+        +Result<List<JSONObject>> buildTaskDetailStartMeta(PlanOrderCombineToDetailStartMetaRequest)
+    }
+    class PlanOrderIssueCombineOrderServiceC2mImpl {
+        +void combineOrder(JSONObject, List<JSONObject> detailStartMetaList, List<CombineDecision>) {
+        +CombineDecision buildCombineDecision(Integer, Map<String, String>, String, String) {
+        +void noQuantityLimitCombine(JSONObject, List<JSONObject>, List<CombineDecision>)
+        +void askForQuantityLimitCombine(JSONObject, List<JSONObject>, List<CombineDecision>)
+    }
+    class AbstractPlanOrderIssueCombineOrderService {
+        +List<JSONObject> convertToNoticeOrder(Identity, JSONObject, OrderConvertType,Predicate, OrderConvertCondition)
+        +List<JSONObject> convertDetailStartMeta(JSONObject, List<String>, Integer)
+        +List<String> queryOrderCodeList(Identity, Predicate, OrderConvertCondition)
+    }
+    class PlanOrderIssueCombineOrderServiceImpl {
+        +Result<List<JSONObject>> buildTaskDetailStartMeta(PlanOrderCombineToDetailStartMetaRequest)
+    }
+}
+
+PlanOrderIssueCombineOrderServiceC2mImpl <|..right PlanOrderIssueCombineOrderService
+PlanOrderIssueCombineOrderServiceImpl <|..left PlanOrderIssueCombineOrderService
+PlanOrderIssueCombineOrderServiceC2mImpl <|.. AbstractPlanOrderIssueCombineOrderService
+PlanOrderIssueCombineOrderServiceImpl <|.. AbstractPlanOrderIssueCombineOrderService
+
+TaskDomainService <--down TaskService
+TaskEntityRepository <--down TaskDomainService
+BatchOrderConvertDistributor <..down TaskDomainService
+BatchOrderConvertDistributor --> PlanOrderIssueCombineOrderService
+
+
+
+@enduml

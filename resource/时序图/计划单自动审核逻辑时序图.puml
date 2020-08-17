@@ -1,7 +1,7 @@
 @startuml
 hide footbox
 title 计划单系统交互时序图
-Schedulex定时任务 -> 计划单业务实现类: 每隔10分钟执行自动审核逻辑
+NBF_flow -> 计划单业务实现类:
 activate Schedulex定时任务
 
 note over 计划单业务实现类: 是否需要自动审核

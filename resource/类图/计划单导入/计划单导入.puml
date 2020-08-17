@@ -1,0 +1,58 @@
+@startuml
+title  计划单导入导出类图
+'skinparam packageStyle rect /' 加入这行代码，样式纯矩形'/
+skinparam backgroundColor #EEEBAD
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+
+package 前端应用 #DodgerBlue {
+    class PlanUploadWebApi {
+      +Map<String, Object> doImportCreate(File,String str)
+      +Map<String, Object> doImportModify(File, String str)
+    }
+}
+
+package 配置中心 #DodgerBlue {
+    class WebpageContainerService {
+        +queryWebpageContainer(String str)
+    }
+}
+
+package 后端应用.api.dto #DodgerBlue {
+    class CollaborationUser {
+        +Long userId
+        +String userName
+    }
+    class DynamicExcelQueryContext {
+        +Map<String, List<String>> dynamicPageQueryMap
+        +DynamicQuery query
+    }
+
+    class ImportTaskDTO {
+        +String query
+        +LoginUser loginUser
+        +String ossKey
+    }
+
+}
+
+package 后端应用 #DodgerBlue {
+    class PlanOrderService {
+        +Result<String> createPlanOrderImportTask(Identity, PlanExcelOperationCmd)
+        +Result<String> createPlanOrderExportTask(Identity, PlanExcelOperationCmd)
+    }
+
+    class TaskFacade {
+        +String createImportTask(ImportTaskDTO)
+    }
+}
+
+PlanUploadWebApi --o WebpageContainerService
+PlanOrderService --o PlanUploadWebApi
+PlanOrderService --o TaskFacade
+TaskFacade --> CollaborationUser
+TaskFacade --> DynamicExcelQueryContext
+TaskFacade --> ImportTaskDTO
+
+@enduml

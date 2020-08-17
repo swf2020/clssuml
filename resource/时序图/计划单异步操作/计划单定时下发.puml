@@ -21,6 +21,18 @@ R --> 任务观察中心:
 deactivate R
 任务观察中心 -> 任务分发与执行中心: 主任务实体
 activate 任务分发与执行中心
+任务分发与执行中心 -> 拆合单中心:
+activate 拆合单中心
+拆合单中心 -> 拆合单中心: 从配置中获取维度信息 \nC2M行业 \n供应商+目的仓+一级类目+\n二级类目+货品属性（新品）
+拆合单中心 -> 拆合单中心: 从DB中获取维度指标数据值
+拆合单中心 -> 拆合单中心: 构建合单维度信息
+拆合单中心 -> 拆合单中心: 做合单操作
+拆合单中心 --> 任务分发与执行中心:
+deactivate 拆合单中心
+
+
+
+
 任务观察中心 --> 监听器: 注册监听器
 activate 监听器
 任务分发与执行中心 --> 任务分发与执行中心: 创建子任务实体,\nschedulerX做\n任务分发与执行
@@ -53,6 +65,7 @@ box "后端"
     participant 任务观察中心
     participant 监听器
     participant 任务分发与执行中心
+    participant 拆合单中心
     database 任务持久化中心 as R #green
 end box
 
@@ -64,3 +77,4 @@ end box
 'BATCH_SUBMIT_PLAN_ORDER
 'BATCH_REJECT_PLAN_ORDER
 '五种状态转换
+
